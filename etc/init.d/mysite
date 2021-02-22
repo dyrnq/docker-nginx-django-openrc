@@ -1,0 +1,41 @@
+#!/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/bin/gunicorn
+PID_FILE=/var/run/mysite.pid
+NAME=mysite
+
+
+case "$1" in
+    start)
+        if [ -e "$PID_FILE" ]; then
+            echo "$NAME" is running, pid="$(cat $PID_FILE)"
+            exit 1
+        else
+            echo "Starting $NAME"
+            start-stop-daemon --start --background --quiet --chdir /mysite --exec $DAEMON -- --pid /var/run/mysite.pid --worker-class gevent --keep-alive 60 --bind 0.0.0.0:8000 --bind unix:/var/run/mysite.sock  --workers 2 --threads 8 --access-logfile - mysite.wsgi:application || true
+            echo "$NAME"
+        fi
+        ;;
+   stop)
+        echo "Stopping $NAME"
+        start-stop-daemon --stop --verbose --pidfile $PID_FILE || true
+        echo "$NAME"
+        ;;
+    restart)
+        echo "Restarting $NAME"
+        start-stop-daemon --stop --verbose --pidfile $PID_FILE || true
+        sleep 2
+        start-stop-daemon --start --background --quiet --chdir /mysite --exec $DAEMON -- --pid /var/run/mysite.pid --worker-class gevent --keep-alive 60 --bind 0.0.0.0:8000 --bind unix:/var/run/mysite.sock  --workers 2 --threads 8 --access-logfile - mysite.wsgi:application || true
+        echo "$NAME"
+        ;;
+    pid)
+        if [ -e "$PID_FILE" ]; then
+            cat $PID_FILE
+        fi
+        ;;
+    *)
+        echo "Usage: $NAME {start|stop|restart|pid}" >&2
+        exit 1
+        ;;
+esac
+exit 0
