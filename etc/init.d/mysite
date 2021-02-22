@@ -12,7 +12,7 @@ case "$1" in
             exit 1
         else
             echo "Starting $NAME"
-            start-stop-daemon --start --background --quiet --chdir /mysite --exec $DAEMON -- --pid /var/run/mysite.pid --worker-class gevent --keep-alive 60 --bind 0.0.0.0:8000 --bind unix:/var/run/mysite.sock  --workers 2 --threads 8 --access-logfile - mysite.wsgi:application || true
+            start-stop-daemon --start --quiet --chdir /mysite --exec $DAEMON -- --daemon --pid /var/run/mysite.pid --worker-class gevent --keep-alive 60 --bind 0.0.0.0:8000 --bind unix:/var/run/mysite.sock  --workers 2 --threads 8 --access-logfile - mysite.wsgi:application || true
             echo "$NAME"
         fi
         ;;
@@ -25,7 +25,7 @@ case "$1" in
         echo "Restarting $NAME"
         start-stop-daemon --stop --verbose --pidfile $PID_FILE || true
         sleep 2
-        start-stop-daemon --start --background --quiet --chdir /mysite --exec $DAEMON -- --pid /var/run/mysite.pid --worker-class gevent --keep-alive 60 --bind 0.0.0.0:8000 --bind unix:/var/run/mysite.sock  --workers 2 --threads 8 --access-logfile - mysite.wsgi:application || true
+        start-stop-daemon --start --quiet --chdir /mysite --exec $DAEMON -- --daemon --pid /var/run/mysite.pid --worker-class gevent --keep-alive 60 --bind 0.0.0.0:8000 --bind unix:/var/run/mysite.sock  --workers 2 --threads 8 --access-logfile - mysite.wsgi:application || true
         echo "$NAME"
         ;;
     pid)
